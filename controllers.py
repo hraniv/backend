@@ -1,14 +1,19 @@
+from base_controllers.controllers import BaseModelController
 from data.models import User
 from data.schemas import UserSchema
-from mixins.controllers import ListMixin, BaseModelController, RetrieveMixin, DestroyMixin, \
-    UpdateMixin
+from base_controllers import mixins
 
 
-class UserListResource(ListMixin, BaseModelController):
+class UserListResource(mixins.ListMixin,
+                       mixins.CreateMixin,
+                       BaseModelController):
     schema = UserSchema
     model = User
 
 
-class UserSingleResource(RetrieveMixin, DestroyMixin, UpdateMixin, BaseModelController):
+class UserSingleResource(mixins.RetrieveMixin,
+                         mixins.DestroyMixin,
+                         mixins.UpdateMixin,
+                         BaseModelController):
     schema = UserSchema
     model = User

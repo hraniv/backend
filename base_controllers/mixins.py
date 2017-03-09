@@ -1,25 +1,23 @@
 import falcon
 
 
-class BaseModelController:
-    schema = None
-    model = None
-
-    def get_queryset(self):
-        return self.model.objects.all()
-
-    def get_object(self, pk):
-        try:
-            return self.get_queryset().get(pk=pk)
-        except self.model.DoesNotExist:
-            raise falcon.HTTPNotFound()
-
-
 class ListMixin:
     # TODO add pagination
 
     def on_get(self, req, resp):
         resp.body = self.schema().dumps(self.get_queryset(), many=True).data
+
+
+class CreateMixin:
+
+    def on_post(self, req, resp):
+        # TODO call model validation
+        schema = self.schema()
+        data, errors = schema.load(req.params)
+        if errors:
+            raise falcon.HTTPBadRequest('Invalid data', errors)
+
+        resp.body = schema.dumps(self.model.objects.create(**data)).data
 
 
 class RetrieveMixin:
@@ -53,8 +51,3 @@ class UpdateMixin:
 
     def on_put(self, req, resp, pk):
         self.update_object(pk, params=req.params, resp=resp, partial=False)
-
-
-# TODO add post
-# TODO add single object base mixin with with self.get_object
-
