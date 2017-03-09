@@ -69,3 +69,6 @@ class UpdateMixin:
 
     def on_put(self, req, resp, pk):
         self.update_object(pk, params=req.params, resp=resp, partial=False)
+
+
+# TODO check autogeneration of schema from model in marsh docs
