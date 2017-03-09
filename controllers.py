@@ -1,9 +1,13 @@
 from data.models import User
 from data.schemas import UserSchema
-from mixins.controllers import ListMixin
+from mixins.controllers import ListMixin, DetailMixin
 
 
-class UserResource(ListMixin):
+class UserListResource(ListMixin):
     schema = UserSchema
-    queryset = User.objects.all()
+    model = User
 
+
+class UserDetailResource(DetailMixin):
+    schema = UserSchema
+    model = User
