@@ -1,4 +1,12 @@
 import falcon
+from django.core.exceptions import ValidationError
+
+
+def call_model_full_clean(obj, model):
+    try:
+        obj.full_clean()
+    except ValidationError as err:
+        raise falcon.HTTPBadRequest('Invalid data', err.message_dict)
 
 
 class ListMixin:
@@ -11,13 +19,20 @@ class ListMixin:
 class CreateMixin:
 
     def on_post(self, req, resp):
-        # TODO call model validation
         schema = self.schema()
         data, errors = schema.load(req.params)
         if errors:
             raise falcon.HTTPBadRequest('Invalid data', errors)
 
-        resp.body = schema.dumps(self.model.objects.create(**data)).data
+        new_obj = self.model()
+        for key, value in data.items():
+            setattr(new_obj, key, value)
+
+        call_model_full_clean(new_obj, self.model)
+
+        new_obj.save()
+
+        resp.body = schema.dumps(new_obj).data
 
 
 class RetrieveMixin:
@@ -42,6 +57,9 @@ class UpdateMixin:
         obj = self.get_object(pk)
         for (key, value) in data.items():
             setattr(obj, key, value)
+
+        call_model_full_clean(obj, self.model)
+
         obj.save()
 
         resp.body = schema.dumps(obj).data
