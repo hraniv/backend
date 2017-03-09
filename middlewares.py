@@ -3,28 +3,25 @@ import json
 import falcon
 
 
-class JSONMiddleware(object):
-    # Middleware example:
-    # https://github.com/AndreiRegiani/falcon-jsonify/blob/master/falcon_jsonify/__init__.py
+class JSONResponseMiddleware(object):
 
-    # Middleware doc:
-    # http://falcon.readthedocs.io/en/stable/api/middleware.html
-
+    # from https://falcon.readthedocs.io/en/stable/user/quickstart.html#learning-by-example
     def process_request(self, req, resp):
-        if not req.content_length:
+
+        if req.content_length in (None, 0):
             return
 
         body = req.stream.read()
-        req.json = {}
+        if not body:
+            raise falcon.HTTPBadRequest('Empty request body',
+                                        'A valid JSON document is required.')
 
         try:
-            req.json = json.loads(body.decode('utf-8'))
+            req.context['doc'] = json.loads(body.decode('utf-8'))
 
-        except ValueError:
-            raise falcon.HTTPBadRequest('Malformed JSON', 'Syntax error')
-
-        except UnicodeDecodeError:
-            raise falcon.HTTPBadRequest('Invalid encoding', 'Could not decode as UTF-8')
-
-    # def process_response(self, req, resp, resource, req_succeeded):
-    #     resp.body = json.dumps(resp.data)
+        except (ValueError, UnicodeDecodeError):
+            raise falcon.HTTPError(falcon.HTTP_753,
+                                   'Malformed JSON',
+                                   'Could not decode the request body. The '
+                                   'JSON was incorrect or not encoded as '
+                                   'UTF-8.')

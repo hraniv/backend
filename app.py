@@ -1,11 +1,15 @@
 from django.core.wsgi import get_wsgi_application
+from falcon import RequestOptions
+
 get_wsgi_application()
 
 import falcon
-from controllers import UserListResource, UserDetailResource
-from middlewares import JSONMiddleware
+from controllers import UserListResource, UserSingleResource
 
+api = falcon.API()
+request_options = RequestOptions()
+request_options.auto_parse_form_urlencoded = True
+api.req_options = request_options
 
-api = falcon.API(middleware=JSONMiddleware())
 api.add_route('/', UserListResource())
-api.add_route('/{pk}/', UserDetailResource())
+api.add_route('/{pk}/', UserSingleResource())
