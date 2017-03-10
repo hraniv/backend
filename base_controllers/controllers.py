@@ -1,7 +1,7 @@
 import falcon
 
 
-class BaseModelController:
+class BaseModelResource:
     schema = None
     model = None
 
