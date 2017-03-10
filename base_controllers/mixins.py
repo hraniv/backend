@@ -20,18 +20,16 @@ class CreateMixin:
 
     def on_post(self, req, resp):
         schema = self.schema()
-        data, errors = schema.load(req.params)
+        errors = schema.validate(req.params)
         if errors:
             raise falcon.HTTPBadRequest('Invalid data', errors)
 
         new_obj = self.model()
-        for key, value in data.items():
+        for key, value in req.params.items():
             setattr(new_obj, key, value)
 
         call_model_full_clean(new_obj, self.model)
-
         new_obj.save()
-
         resp.body = schema.dumps(new_obj).data
 
 
@@ -50,18 +48,16 @@ class DestroyMixin:
 class UpdateMixin:
     def update_object(self, pk, params, resp, partial):
         schema = self.schema()
-        data, errors = schema.load(params, partial=partial)
+        errors = schema.validate(params, partial=partial)
         if errors:
             raise falcon.HTTPBadRequest('Invalid data', errors)
 
         obj = self.get_object(pk)
-        for (key, value) in data.items():
+        for (key, value) in params.items():
             setattr(obj, key, value)
 
         call_model_full_clean(obj, self.model)
-
         obj.save()
-
         resp.body = schema.dumps(obj).data
 
     def on_patch(self, req, resp, pk):
@@ -69,6 +65,3 @@ class UpdateMixin:
 
     def on_put(self, req, resp, pk):
         self.update_object(pk, params=req.params, resp=resp, partial=False)
-
-
-# TODO check autogeneration of schema from model in marsh docs

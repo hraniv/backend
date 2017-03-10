@@ -11,5 +11,5 @@ request_options = RequestOptions()
 request_options.auto_parse_form_urlencoded = True
 api.req_options = request_options
 
-api.add_route('/', UserListResource())
-api.add_route('/{pk}/', UserSingleResource())
+api.add_route('/users/', UserListResource())
+api.add_route('/users/{pk}/', UserSingleResource())
