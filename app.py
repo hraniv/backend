@@ -10,6 +10,7 @@ api = falcon.API()
 api.req_options = RequestOptions()
 api.req_options.auto_parse_form_urlencoded = True
 # TODO check if there is a way to set these ^ settings properly
+# TODO add token-based authentication
 
 api.add_route('/users/', UserListResource())
 api.add_route('/users/{pk}/', UserSingleResource())

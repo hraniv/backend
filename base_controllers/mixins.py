@@ -3,22 +3,27 @@ from ujson import dumps
 import falcon
 from django.core.exceptions import ValidationError
 
+from base_controllers.paginators import PagePaginator
 from settings import DEFAULT_PAGE_SIZE, MAX_PER_PAGE
 
 
-def call_model_full_clean(obj, model):
+def raise_exception_if_data_invalid(schema, params, partial):
+    errors = schema.validate(params, partial=partial)
+    if errors:
+        raise falcon.HTTPBadRequest('Invalid data', errors)
+
+
+def update_object(obj, params):
+    for (key, value) in params.items():
+        setattr(obj, key, value)
+
     try:
         obj.full_clean()
     except ValidationError as err:
         raise falcon.HTTPBadRequest('Invalid data', err.message_dict)
 
-
-class PagePaginator:
-
-    def paginate(self, queryset, page_size, req):
-        page_num = req.get_param_as_int('page') or 1
-        limit, offset = (page_num - 1) * page_size, page_num * page_size
-        return queryset[limit:offset]
+    obj.save()
+    return obj
 
 
 class ListMixin:
@@ -46,16 +51,9 @@ class CreateMixin:
 
     def on_post(self, req, resp):
         schema = self.schema()
-        errors = schema.validate(req.params)
-        if errors:
-            raise falcon.HTTPBadRequest('Invalid data', errors)
-
+        raise_exception_if_data_invalid(schema, req.params, partial=False)
         new_obj = self.model()
-        for key, value in req.params.items():
-            setattr(new_obj, key, value)
-
-        call_model_full_clean(new_obj, self.model)
-        new_obj.save()
+        new_obj = update_object(new_obj, req.params)
         resp.body = schema.dumps(new_obj).data
 
 
@@ -74,16 +72,9 @@ class DestroyMixin:
 class UpdateMixin:
     def update_object(self, pk, params, resp, partial):
         schema = self.schema()
-        errors = schema.validate(params, partial=partial)
-        if errors:
-            raise falcon.HTTPBadRequest('Invalid data', errors)
-
+        raise_exception_if_data_invalid(schema, params, partial)
         obj = self.get_object(pk)
-        for (key, value) in params.items():
-            setattr(obj, key, value)
-
-        call_model_full_clean(obj, self.model)
-        obj.save()
+        obj = update_object(obj, params)
         resp.body = schema.dumps(obj).data
 
     def on_patch(self, req, resp, pk):
