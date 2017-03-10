@@ -37,12 +37,8 @@ class ListMixin:
     def on_get(self, req, resp):
         qs = self.get_queryset()
         if self.paginator_class:
-            qs = self.paginator_class().paginate(qs, self.get_page_size(req), req)
-            resp.body = dumps({
-                'objects_count': qs.count(),
-                'data': self.schema().dump(qs, many=True).data,
-            })
-
+            resp.body = self.paginator_class.get_paginated_response(qs, self.get_page_size(req),
+                                                                    req, self.schema())
         else:
             resp.body = self.schema().dumps(qs, many=True).data
 
