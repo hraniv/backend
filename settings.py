@@ -1,3 +1,4 @@
+# DJANGO SETTINGS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -10,7 +11,6 @@ INSTALLED_APPS = (
     'django_extensions',
 )
 
-
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
@@ -21,3 +21,8 @@ INSTALLED_APPS = (
 # }
 
 SECRET_KEY = 'REPLACE_ME'
+
+
+# OTHER SETTINGS
+DEFAULT_PAGE_SIZE = 2
+MAX_PER_PAGE = 1000

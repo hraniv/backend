@@ -7,9 +7,9 @@ import falcon
 from controllers import UserListResource, UserSingleResource
 
 api = falcon.API()
-request_options = RequestOptions()
-request_options.auto_parse_form_urlencoded = True
-api.req_options = request_options
+api.req_options = RequestOptions()
+api.req_options.auto_parse_form_urlencoded = True
+# TODO check if there is a way to set these ^ settings properly
 
 api.add_route('/users/', UserListResource())
 api.add_route('/users/{pk}/', UserSingleResource())

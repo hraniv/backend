@@ -1,5 +1,9 @@
+from ujson import dumps
+
 import falcon
 from django.core.exceptions import ValidationError
+
+from settings import DEFAULT_PAGE_SIZE, MAX_PER_PAGE
 
 
 def call_model_full_clean(obj, model):
@@ -9,11 +13,33 @@ def call_model_full_clean(obj, model):
         raise falcon.HTTPBadRequest('Invalid data', err.message_dict)
 
 
+class PagePaginator:
+
+    def paginate(self, queryset, page_size, req):
+        page_num = req.get_param_as_int('page') or 1
+        limit, offset = (page_num - 1) * page_size, page_num * page_size
+        return queryset[limit:offset]
+
+
 class ListMixin:
-    # TODO add pagination
+    paginator_class = PagePaginator
+    page_size = None
+
+    def get_page_size(self, req):
+        page_size = req.get_param_as_int('page_size') or self.page_size or DEFAULT_PAGE_SIZE
+        return min(page_size, MAX_PER_PAGE)
 
     def on_get(self, req, resp):
-        resp.body = self.schema().dumps(self.get_queryset(), many=True).data
+        qs = self.get_queryset()
+        if self.paginator_class:
+            qs = self.paginator_class().paginate(qs, self.get_page_size(req), req)
+            resp.body = dumps({
+                'objects_count': qs.count(),
+                'data': self.schema().dump(qs, many=True).data,
+            })
+
+        else:
+            resp.body = self.schema().dumps(qs, many=True).data
 
 
 class CreateMixin:
