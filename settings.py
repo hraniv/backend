@@ -1,6 +1,6 @@
 # DJANGO SETTINGS
 INSTALLED_APPS = (
-    'data',
+    'db',
     'django_extensions',
 )
 DATABASES = {

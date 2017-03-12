@@ -1,6 +1,6 @@
 from base_controllers.controllers import BaseModelResource
-from data.models import User
-from data.schemas import UserSchema
+from db.models import User
+from db.schemas import UserSchema
 from base_controllers import mixins
 
 
