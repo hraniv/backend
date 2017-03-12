@@ -2,7 +2,6 @@ import binascii
 import os
 
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
 from model_utils.models import TimeStampedModel
 
 
@@ -18,10 +17,9 @@ class User(models.Model):
         return self.name
 
 
-class AuthToken(models.Model):
+class AuthToken(TimeStampedModel):
     key = models.CharField(max_length=40, primary_key=True)
     user = models.OneToOneField(User, related_name='auth_token', on_delete=models.CASCADE)
-    created = models.DateTimeField(_("Created"), auto_now_add=True)
 
     def __str__(self):
         return self.key
