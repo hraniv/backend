@@ -1,5 +1,3 @@
-from ujson import dumps
-
 import falcon
 from django.core.exceptions import ValidationError
 
