@@ -1,7 +1,7 @@
+from base_controllers import mixins
 from base_controllers.controllers import BaseModelResource
 from db.models import User
 from db.schemas import UserSchema
-from base_controllers import mixins
 
 
 class UserListResource(mixins.ListMixin,
