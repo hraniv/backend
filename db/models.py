@@ -32,8 +32,11 @@ class AuthToken(TimeStampedModel):
 
 class Category(TimeStampedModel):
     title = models.CharField(max_length=64)
-    url = models.SlugField()  # TODO
+    url = models.SlugField(allow_unicode=True)
     owners = models.ManyToManyField(User, related_name='categories')
+
+    class Meta:
+        verbose_name_plural = 'categories'
 
     def __str__(self):
         return self.title
@@ -43,8 +46,8 @@ class InfoObject(TimeStampedModel):
     category = models.ForeignKey(Category)
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
-    big_image = models.ImageField(upload_to='info_objects/big', blank=True, null=True)  # TODO?
-    small_image = models.ImageField(upload_to='info_objects/small', blank=True, null=True)  # TODO?
+    big_image = models.ImageField(upload_to='info_objects/big', blank=True, null=True)
+    small_image = models.ImageField(upload_to='info_objects/small', blank=True, null=True)
     owners = models.ManyToManyField(User, related_name='info_objects')
 
     def __str__(self):
@@ -53,7 +56,7 @@ class InfoObject(TimeStampedModel):
 
 class Feedback(TimeStampedModel):
     subject = models.CharField(max_length=256)
-    text = models.TextField(blank=True)  # TODO?
+    text = models.TextField(blank=True)
 
     def __str__(self):
         clean_words = [word for word in self.subject.split() if word]

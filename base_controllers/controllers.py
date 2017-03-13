@@ -1,5 +1,7 @@
 import falcon
 
+from base_controllers import mixins
+
 
 class BaseModelResource:
     schema = None
@@ -13,3 +15,16 @@ class BaseModelResource:
             return self.get_queryset().get(pk=pk)
         except self.model.DoesNotExist:
             raise falcon.HTTPNotFound()
+
+
+class ListModelResource(mixins.ListMixin,
+                        mixins.CreateMixin,
+                        BaseModelResource):
+    pass
+
+
+class SingleModelResource(mixins.RetrieveMixin,
+                          mixins.DestroyMixin,
+                          mixins.UpdateMixin,
+                          BaseModelResource):
+    pass
